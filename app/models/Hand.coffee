@@ -2,9 +2,24 @@ class window.Hand extends Backbone.Collection
 
   model: Card
 
-  initialize: (array, @deck, @isDealer) ->
+  initialize: (array, @deck, @isDealer, @handStatus = 'Hit or stand?') ->
+    @on 'add remove change', => @checkStatus()
 
-  hit: -> @add(@deck.pop()).last()
+  checkStatus: ->
+    score = @scores()[0]
+    console.log score
+    @handStatus = switch
+      when score is 21 and @length is 2 then 'Blackjack!'
+      when score is 21 then '21'
+      when score > 21 then 'Bust'
+      else 'Hit or Stand?'
+    @trigger 'updateView'
+
+  hit: ->
+    @add(@deck.pop()).last()
+
+  stand: ->
+    @trigger 'stand', @
 
   scores: ->
     # The scores are an array of potential scores.
