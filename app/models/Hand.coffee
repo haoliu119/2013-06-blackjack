@@ -9,10 +9,15 @@ class window.Hand extends Backbone.Collection
     score = @scores()[0]
     console.log score
     @handStatus = switch
-      when score is 21 and @length is 2 then 'Blackjack!'
-      when score is 21 then '21'
-      when score > 21 then 'Bust'
-      else 'Hit or Stand?'
+      when score is 21 and @length is 2
+        'Blackjack!'
+      when score is 21
+        '21'
+      when score > 21
+        @trigger 'bust'
+        'Bust'
+      else
+        'Hit or Stand?'
     @trigger 'updateView'
 
   hit: ->

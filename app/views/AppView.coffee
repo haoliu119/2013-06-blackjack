@@ -10,7 +10,11 @@ class window.AppView extends Backbone.View
     "click .hit-button": -> @model.get('playerHand').hit()
     "click .stand-button": -> @model.get('playerHand').stand()
 
-  initialize: -> @render()
+  initialize: ->
+    @render()
+    @model.get('playerHand').on 'bust', =>
+      console.log @$el
+      @$el.find('.stand-button, .hit-button').prop 'disabled', true
 
   render: ->
     @$el.children().detach()
