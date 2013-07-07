@@ -8,7 +8,7 @@ class window.HandView extends Backbone.View
                       <span class="handStatus"> : <%= handStatus %></span></h2>'
 
   initialize: ->
-    @collection.on 'updateView', => @render()
+    @collection.on 'updateHandView', => @render()
     @render()
 
   render: ->
