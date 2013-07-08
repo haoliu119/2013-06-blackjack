@@ -1,6 +1,8 @@
 #todo: refactor to have a game beneath the outer blackjack model
 class window.App extends Backbone.Model
 
+  playerPot: []
+
   initialize: ->
     @set 'deck', deck = new Deck()
     @set 'playerHand', deck.dealPlayer()
@@ -11,7 +13,13 @@ class window.App extends Backbone.Model
       @trigger 'playerTurnEnded'
       @dealerTurn()
     @get('dealerHand').on 'stand', =>
-      @checkScores()
+      message = @checkScores()
+      @trigger 'endGame', message
+      @playerPot.push message
+      @initialize()
+      @trigger 'newGame'
+      console.log @playerPot
+
 
   playerBust: ->
     @trigger 'playerTurnEnded'
@@ -23,29 +31,28 @@ class window.App extends Backbone.Model
   checkScores: ->
     playerStatus = @get('playerHand').checkStatus()
     dealerStatus = @get('dealerHand').checkStatus()
+
     playerHardScore = @get('playerHand').scores()[0]
     playerSoftScore = @get('playerHand').scores()[1]
 
     playerScore = if playerSoftScore? and playerSoftScore < 22 then playerSoftScore else playerHardScore
-    dealerScore = @get('dealerHand').scores()
-
+    dealerScore = @get('dealerHand').scores()[0]
     if playerStatus is 1 # if player busts, player loses, even if deal busts
-      @trigger 'playerLost'
+      'playerLost'
     else if playerStatus is 3 and playerStatus > dealerStatus
-      @trigger 'playerWonBlackJack'
+      'playerWonBlackJack'
     else if playerStatus > 1 and playerStatus is dealerStatus
-      @trigger 'push' #push 21 or blackjack
+      'push' #push 21 or blackjack
     else if dealerStatus is 1 # dealer busts, player didn't bust
-      @trigger 'playerWon'
+      'playerWon'
     else
       if playerScore is dealerScore # equal scores
         if playerStatus < dealerStatus
-          @trigger 'playerLost'
+          'playerLost'
         else
-          @trigger 'push'
+          'push'
       else
         if playerScore > dealerScore
-          @trigger 'playerWon'
+          'playerWon'
         else
-          @trigger 'playerLost'
-    @trigger 'NewGame'
+          'playerLost'

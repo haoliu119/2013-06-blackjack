@@ -9,11 +9,11 @@ class window.Hand extends Backbone.Collection
     3: 'Blackjack, you may wanna stand...'
 
   initialize: (array, @deck, @isDealer) ->
-    @handStatus = if isDealer then '' else 'Hit or stand?'
-    @on 'add remove change', =>
+    @handStatus = if isDealer then '' else @statusHash[@checkStatus()]
+    @on 'add remove change', (card)=>
       statusKey = @checkStatus()
       @handStatus = if isDealer then '' else @statusHash[statusKey]
-      @trigger 'updateHandView'
+      @trigger 'updateHandView', card
       @trigger 'statusChanged', statusKey
 
   checkStatus: ->
@@ -49,11 +49,15 @@ class window.Hand extends Backbone.Collection
 
     if hasAce
       if @isDealer
-        [score + 10]
+        if score + 10 > 21
+          [score]
+        else 
+          [score + 10]
       else
         [score, score + 10]
     else [score]
 
   dealerTurn: -> # dealer keeps hitting until hard 17 or above, no soft score checking yet
+    @at(0).flip()
     @hit() while @scores()[0] < 17
     @stand()
